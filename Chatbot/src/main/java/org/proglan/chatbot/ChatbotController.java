@@ -2,6 +2,7 @@ package org.proglan.chatbot;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -59,7 +60,7 @@ public class ChatbotController {
 
     private String chatGPT(String message) {
         String url = "https://api.openai.com/v1/chat/completions";
-        String apiKey = "input_api_key_here";
+        String apiKey = "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";
 
         try {
             URL obj = new URL(url);
