@@ -2,10 +2,7 @@ package org.proglan.chatbot;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 
 import java.io.BufferedReader;
@@ -18,6 +15,7 @@ import java.net.URL;
 public class ChatbotController {
 
     public ProgressIndicator cancelProgressIndicator;
+    public Button sendButton;
     @FXML
     private TextArea chatArea;
     @FXML
@@ -38,6 +36,12 @@ public class ChatbotController {
     public void sendMessage() {
         String userMessage = userInput.getText().trim();
         if (!userMessage.isEmpty()) {
+            userInput.setDisable(true);
+            sendButton.setText("Cancel");
+            sendButton.setOnAction(e -> cancelRequest());
+
+            sendButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+
             Task<String> task = new Task<>() {
                 @Override
                 protected String call() {
@@ -51,6 +55,11 @@ public class ChatbotController {
                 appendToChat("You", userMessage);
                 appendToChat("Chatbot", response);
                 showLoading(false);
+                userInput.setDisable(false);
+                sendButton.setText("Send");
+                sendButton.setOnAction(e -> sendMessage());
+
+                sendButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
             });
 
             new Thread(task).start();
@@ -84,7 +93,6 @@ public class ChatbotController {
     }
 
     private void sendRequest(String message) throws IOException {
-        // Simpan model sebagai variabel anggota kelas
         String model = "gpt-3.5-turbo";
         String body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + message + "\"}]}";
         try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
@@ -126,11 +134,23 @@ public class ChatbotController {
     }
 
     public void cancelRequest() {
-        if (connection != null) {
-            connection.disconnect();
-            showLoading(false);
+        if (progressIndicator.isVisible()) {
+            progressIndicator.setVisible(false);
+            progressIndicator.setManaged(false);
+
+            if (connection != null) {
+                connection.disconnect();
+                showLoading(false);
+            }
+
+            userInput.setDisable(false);
+            sendButton.setText("Send");
+            sendButton.setOnAction(e -> sendMessage());
+
+            sendButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
         }
     }
+
 
     public void showAboutInfo() {
         String aboutInfo = "Muhammad Hisyam Kamil\t\t\t(202210370311060)\nAhmad Naufal Luthfan Marzuqi\t\t(202210370311072)\nFarriel Arrianta Akbar Pratama\t\t(202210370311077)\n\nPemrograman Lanjut 3D\n\nMade with love.";
