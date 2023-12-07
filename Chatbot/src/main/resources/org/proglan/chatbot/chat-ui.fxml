@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+
 <BorderPane prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #f2f2f2;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.proglan.chatbot.ChatbotController">
 
   <!-- Top Section -->
   <top>
-    <VBox alignment="CENTER" style="-fx-background-color: #3498db; -fx-padding: 10px;">
-      <Label text="ChatBot" style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;" />
-    </VBox>
+    <BorderPane style="-fx-background-color: #3498db;">
+      <!-- Right Section: About Button -->
+      <right>
+        <Button onAction="#showAboutInfo" style="-fx-background-color: transparent;">
+          <graphic>
+            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+              <Image url="@about_icon.png" />
+            </ImageView>
+          </graphic>
+        </Button>
+      </right>
+      <!-- Center Section: ChatBot Title -->
+      <center>
+        <VBox alignment="CENTER" style="-fx-padding: 10px;">
+          <Label style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;" text="ChatBot" />
+        </VBox>
+      </center>
+    </BorderPane>
   </top>
 
   <!-- Center Section: Chat Area -->
