@@ -2,6 +2,7 @@ package org.proglan.chatbot;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -129,5 +130,15 @@ public class ChatbotController {
             connection.disconnect();
             showLoading(false);
         }
+    }
+
+    public void showAboutInfo() {
+        String aboutInfo = "Muhammad Hisyam Kamil\t\t\t(202210370311060)\nAhmad Naufal Luthfan Marzuqi\t\t(202210370311072)\nFarriel Arrianta Akbar Pratama\t\t(202210370311077)\n\nPemrograman Lanjut 3D\n\nMade with love.";
+
+        Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
+        aboutAlert.setTitle("About");
+        aboutAlert.setHeaderText(null);
+        aboutAlert.setContentText(aboutInfo);
+        aboutAlert.showAndWait();
     }
 }
