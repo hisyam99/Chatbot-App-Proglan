@@ -14,14 +14,24 @@ import java.net.URL;
 
 public class ChatbotController {
 
+    private static final String URL_CHAT_API = "https://api.openai.com/v1/chat/completions";
+    private static final String API_KEY = "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";
+    private static final String USER_ROLE = "user";
+    private static final String SEND_BUTTON_SEND = "Send";
+    private static final String SEND_BUTTON_CANCEL = "Cancel";
+    private static final String DARK_MODE_STYLE = "-fx-control-inner-background:#455a64; -fx-text-fill: white;";
+    private static final String LIGHT_MODE_STYLE = "-fx-control-inner-background: #FFFFFF; -fx-text-fill: black;";
     public ProgressIndicator cancelProgressIndicator;
-    public Button sendButton;
     @FXML
     private TextArea chatArea;
     @FXML
     private TextField userInput;
     @FXML
     private ProgressIndicator progressIndicator;
+    @FXML
+    private Button sendButton;
+    @FXML
+    private ToggleButton themeSwitch;
     private HttpURLConnection connection;
 
     public void initialize() {
@@ -31,16 +41,14 @@ public class ChatbotController {
                 event.consume();
             }
         });
+        toggleTheme();
     }
 
     public void sendMessage() {
         String userMessage = userInput.getText().trim();
         if (!userMessage.isEmpty()) {
             userInput.setDisable(true);
-            sendButton.setText("Cancel");
-            sendButton.setOnAction(e -> cancelRequest());
-
-            sendButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+            setSendButtonState(true);
 
             Task<String> task = new Task<>() {
                 @Override
@@ -50,31 +58,33 @@ public class ChatbotController {
             };
 
             task.setOnRunning(event -> showLoading(true));
-            task.setOnSucceeded(event -> {
-                String response = task.getValue();
-                appendToChat("You", userMessage);
-                appendToChat("Chatbot", response);
-                showLoading(false);
-                userInput.setDisable(false);
-                sendButton.setText("Send");
-                sendButton.setOnAction(e -> sendMessage());
-
-                sendButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
-            });
+            task.setOnSucceeded(event -> handleTaskCompletion(userMessage, task.getValue()));
 
             new Thread(task).start();
             userInput.clear();
         }
     }
 
-    private String chatGPT(String message) {
-        String url = "https://api.openai.com/v1/chat/completions";
-        String apiKey = "input_api_key_here";
+    private void setSendButtonState(boolean isSending) {
+        userInput.setDisable(isSending);
+        sendButton.setText(isSending ? SEND_BUTTON_CANCEL : SEND_BUTTON_SEND);
+        sendButton.setOnAction(isSending ? e -> cancelRequest() : e -> sendMessage());
+        sendButton.setStyle(isSending ? "-fx-background-color: #e74c3c; -fx-text-fill: white;" : "-fx-background-color: #3498db; -fx-text-fill: white;");
+    }
 
+    private void handleTaskCompletion(String userMessage, String response) {
+        appendToChat("You", userMessage);
+        appendToChat("Chatbot", response);
+        showLoading(false);
+        userInput.setDisable(false);
+        setSendButtonState(false);
+    }
+
+    private String chatGPT(String message) {
         try {
-            URL obj = new URL(url);
+            URL obj = new URL(URL_CHAT_API);
             connection = (HttpURLConnection) obj.openConnection();
-            setupConnection(apiKey);
+            setupConnection();
             sendRequest(message);
 
             String responseBody = readResponse();
@@ -85,16 +95,17 @@ public class ChatbotController {
         }
     }
 
-    private void setupConnection(String apiKey) throws IOException {
+    private void setupConnection() throws IOException {
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Authorization", "Bearer " + apiKey);
+        connection.setRequestProperty("Authorization", "Bearer " + ChatbotController.API_KEY);
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
     }
 
     private void sendRequest(String message) throws IOException {
         String model = "gpt-3.5-turbo";
-        String body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + message + "\"}]}";
+        String body = String.format("{\"model\": \"%s\", \"messages\": [{\"role\": \"%s\", \"content\": \"%s\"}]}",
+                model, USER_ROLE, message);
         try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
             writer.write(body);
         }
@@ -144,13 +155,29 @@ public class ChatbotController {
             }
 
             userInput.setDisable(false);
-            sendButton.setText("Send");
-            sendButton.setOnAction(e -> sendMessage());
-
-            sendButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
+            setSendButtonState(false);
         }
     }
 
+    public void toggleTheme() {
+        if (themeSwitch.isSelected()) {
+            setDarkMode();
+        } else {
+            setLightMode();
+        }
+    }
+
+    private void setDarkMode() {
+        chatArea.setStyle(DARK_MODE_STYLE);
+        userInput.setStyle("-fx-background-color: #546e7a; -fx-text-fill: white;");
+        // Penyesuaian tema lainnya untuk mode gelap
+    }
+
+    private void setLightMode() {
+        chatArea.setStyle(LIGHT_MODE_STYLE);
+        userInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: black;");
+        // Penyesuaian tema lainnya untuk mode terang
+    }
 
     public void showAboutInfo() {
         String aboutInfo = "Muhammad Hisyam Kamil\t\t\t(202210370311060)\nAhmad Naufal Luthfan Marzuqi\t\t(202210370311072)\nFarriel Arrianta Akbar Pratama\t\t(202210370311077)\n\nPemrograman Lanjut 3D\n\nMade with love.";
