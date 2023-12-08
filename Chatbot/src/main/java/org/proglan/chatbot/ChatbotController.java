@@ -4,24 +4,17 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.VBox;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class ChatbotController {
 
-    private static final String URL_CHAT_API = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "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";
-    private static final String USER_ROLE = "user";
     private static final String SEND_BUTTON_SEND = "Send";
     private static final String SEND_BUTTON_CANCEL = "Cancel";
     private static final String DARK_MODE_STYLE = "-fx-control-inner-background:#455a64; -fx-text-fill: white;";
     private static final String LIGHT_MODE_STYLE = "-fx-control-inner-background: #FFFFFF; -fx-text-fill: black;";
-    public ProgressIndicator cancelProgressIndicator;
+
     @FXML
     private TextArea chatArea;
     @FXML
@@ -32,37 +25,55 @@ public class ChatbotController {
     private Button sendButton;
     @FXML
     private ToggleButton themeSwitch;
+    @FXML
+    private VBox navigationDrawer;
+
+    private ChatbotService chatbotService;
     private HttpURLConnection connection;
+    private boolean isDrawerOpen = true;
 
     public void initialize() {
+        chatbotService = new ChatbotService();
+        toggleDrawer();
+        configureUserInput();
+        toggleTheme();
+    }
+
+    private void configureUserInput() {
         userInput.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
                 sendMessage();
                 event.consume();
             }
         });
-        toggleTheme();
     }
 
     public void sendMessage() {
         String userMessage = userInput.getText().trim();
         if (!userMessage.isEmpty()) {
-            userInput.setDisable(true);
-            setSendButtonState(true);
+            toggleUserInput(true);
 
-            Task<String> task = new Task<>() {
-                @Override
-                protected String call() {
-                    return chatGPT(userMessage);
-                }
-            };
-
-            task.setOnRunning(event -> showLoading(true));
+            Task<String> task = createChatTask(userMessage);
+            task.setOnRunning(event -> toggleProgressIndicator(true));
             task.setOnSucceeded(event -> handleTaskCompletion(userMessage, task.getValue()));
 
             new Thread(task).start();
             userInput.clear();
         }
+    }
+
+    private Task<String> createChatTask(String userMessage) {
+        return new Task<>() {
+            @Override
+            protected String call() {
+                return chatbotService.chatGPT(userMessage);
+            }
+        };
+    }
+
+    private void toggleUserInput(boolean disable) {
+        userInput.setDisable(disable);
+        setSendButtonState(disable);
     }
 
     private void setSendButtonState(boolean isSending) {
@@ -75,71 +86,15 @@ public class ChatbotController {
     private void handleTaskCompletion(String userMessage, String response) {
         appendToChat("You", userMessage);
         appendToChat("Chatbot", response);
-        showLoading(false);
-        userInput.setDisable(false);
-        setSendButtonState(false);
-    }
-
-    private String chatGPT(String message) {
-        try {
-            URL obj = new URL(URL_CHAT_API);
-            connection = (HttpURLConnection) obj.openConnection();
-            setupConnection();
-            sendRequest(message);
-
-            String responseBody = readResponse();
-            return extractContentFromResponse(responseBody);
-        } catch (IOException e) {
-            handleConnectionError();
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setupConnection() throws IOException {
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Authorization", "Bearer " + ChatbotController.API_KEY);
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-    }
-
-    private void sendRequest(String message) throws IOException {
-        String model = "gpt-3.5-turbo";
-        String body = String.format("{\"model\": \"%s\", \"messages\": [{\"role\": \"%s\", \"content\": \"%s\"}]}",
-                model, USER_ROLE, message);
-        try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
-            writer.write(body);
-        }
-    }
-
-    private String readResponse() throws IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            StringBuilder response = new StringBuilder();
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            return response.toString();
-        }
-    }
-
-    private void handleConnectionError() {
-        if (connection != null) {
-            connection.disconnect();
-            showLoading(false);
-        }
-    }
-
-    private String extractContentFromResponse(String response) {
-        int startMarker = response.indexOf("content") + 11;
-        int endMarker = response.indexOf("\"", startMarker);
-        return response.substring(startMarker, endMarker);
+        toggleProgressIndicator(false);
+        toggleUserInput(false);
     }
 
     private void appendToChat(String sender, String message) {
         chatArea.appendText(sender + ": " + message + "\n");
     }
 
-    private void showLoading(boolean show) {
+    private void toggleProgressIndicator(boolean show) {
         progressIndicator.setVisible(show);
         progressIndicator.setManaged(show);
     }
@@ -151,7 +106,7 @@ public class ChatbotController {
 
             if (connection != null) {
                 connection.disconnect();
-                showLoading(false);
+                toggleProgressIndicator(false);
             }
 
             userInput.setDisable(false);
@@ -170,13 +125,13 @@ public class ChatbotController {
     private void setDarkMode() {
         chatArea.setStyle(DARK_MODE_STYLE);
         userInput.setStyle("-fx-background-color: #546e7a; -fx-text-fill: white;");
-        // Penyesuaian tema lainnya untuk mode gelap
+        // Adjust other UI elements for dark mode
     }
 
     private void setLightMode() {
         chatArea.setStyle(LIGHT_MODE_STYLE);
         userInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: black;");
-        // Penyesuaian tema lainnya untuk mode terang
+        // Adjust other UI elements for light mode
     }
 
     public void showAboutInfo() {
@@ -187,5 +142,15 @@ public class ChatbotController {
         aboutAlert.setHeaderText(null);
         aboutAlert.setContentText(aboutInfo);
         aboutAlert.showAndWait();
+    }
+
+    public void toggleDrawer() {
+        isDrawerOpen = !isDrawerOpen;
+        navigationDrawer.setVisible(isDrawerOpen);
+        navigationDrawer.setManaged(isDrawerOpen);
+    }
+
+    public void setConnection(HttpURLConnection connection) {
+        this.connection = connection;
     }
 }
