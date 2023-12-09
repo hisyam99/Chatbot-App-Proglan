@@ -1,10 +1,19 @@
 package org.proglan.chatbot;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.net.HttpURLConnection;
 
@@ -12,8 +21,16 @@ public class ChatbotController {
 
     private static final String SEND_BUTTON_SEND = "Send";
     private static final String SEND_BUTTON_CANCEL = "Cancel";
-    private static final String DARK_MODE_STYLE = "-fx-control-inner-background:#455a64; -fx-text-fill: white;";
-    private static final String LIGHT_MODE_STYLE = "-fx-control-inner-background: #FFFFFF; -fx-text-fill: black;";
+    public BorderPane topSection;
+    public StackPane centerSection;
+    public ProgressIndicator cancelProgressIndicator;
+    public VBox bottomSection;
+    public Label textLabel;
+    public ImageView themeIcon;
+    public ImageView menuIcon;
+    public ImageView aboutIcon;
+    public ScrollPane scrollPane;
+    public BorderPane mainBorderPane;
 
     @FXML
     private TextArea chatArea;
@@ -35,6 +52,7 @@ public class ChatbotController {
     public void initialize() {
         chatbotService = new ChatbotService();
         toggleDrawer();
+        navigationDrawer.setVisible(false);
         configureUserInput();
         toggleTheme();
     }
@@ -123,15 +141,31 @@ public class ChatbotController {
     }
 
     private void setDarkMode() {
-        chatArea.setStyle(DARK_MODE_STYLE);
+        themeIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_theme_icon.png")));
+        menuIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_menu_icon.png")));
+        aboutIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_about_icon.png")));
+        chatArea.setStyle("-fx-control-inner-background:#455a64; -fx-text-fill: white;");
         userInput.setStyle("-fx-background-color: #546e7a; -fx-text-fill: white;");
-        // Adjust other UI elements for dark mode
+        topSection.setStyle("-fx-background-color: #263238; -fx-text-fill: white;");
+        textLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold");
+        bottomSection.setStyle("-fx-background-color: #263238;");
+        scrollPane.setStyle("-fx-background-color: #455a64; -fx-background: none; -fx-border-style: none;");
+        navigationDrawer.setStyle("-fx-background-color: #607d8b;");
+        mainBorderPane.setStyle("-fx-background-color: #607d8b;");
     }
 
     private void setLightMode() {
-        chatArea.setStyle(LIGHT_MODE_STYLE);
-        userInput.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: black;");
-        // Adjust other UI elements for light mode
+        themeIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/theme_icon.png")));
+        menuIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/menu_icon.png")));
+        aboutIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/about_icon.png")));
+        chatArea.setStyle("-fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;");
+        userInput.setStyle("-fx-background-color: #eeeeee; -fx-text-fill: #212121;");
+        topSection.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: black;");
+        textLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold");
+        bottomSection.setStyle("-fx-background-color: #FFFFFF;");
+        scrollPane.setStyle("-fx-background-color: #f5f5f5; -fx-background: none; -fx-border-style: none;");
+        navigationDrawer.setStyle("-fx-background-color: #eeeeee;");
+        mainBorderPane.setStyle("-fx-background-color: #eeeeee;");
     }
 
     public void showAboutInfo() {
@@ -145,9 +179,25 @@ public class ChatbotController {
     }
 
     public void toggleDrawer() {
+        navigationDrawer.setVisible(true);
+        Timeline timeline = new Timeline();
+        TranslateTransition transition = new TranslateTransition(Duration.millis(350), navigationDrawer);
+
+        if (isDrawerOpen) {
+            KeyValue widthValue = new KeyValue(navigationDrawer.prefWidthProperty(), 0);
+            KeyFrame keyFrame = new KeyFrame(Duration.millis(350), widthValue);
+            timeline.getKeyFrames().add(keyFrame);
+            transition.setToX(-navigationDrawer.getWidth());
+        } else {
+            KeyValue widthValue = new KeyValue(navigationDrawer.prefWidthProperty(), 200);
+            KeyFrame keyFrame = new KeyFrame(Duration.millis(350), widthValue);
+            timeline.getKeyFrames().add(keyFrame);
+            transition.setToX(0);
+        }
+
+        timeline.play();
+        transition.play();
         isDrawerOpen = !isDrawerOpen;
-        navigationDrawer.setVisible(isDrawerOpen);
-        navigationDrawer.setManaged(isDrawerOpen);
     }
 
     public void setConnection(HttpURLConnection connection) {
