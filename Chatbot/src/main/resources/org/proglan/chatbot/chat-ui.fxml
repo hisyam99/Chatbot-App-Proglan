@@ -61,12 +61,7 @@
     <left>
         <VBox id="navigationDrawer" fx:id="navigationDrawer" prefWidth="200.0" spacing="10"
               style="-fx-background-color: #eeeeee;">
-            <!-- Isi dari navigation drawer di sini -->
-            <Button alignment="BASELINE_LEFT" prefHeight="26.0" prefWidth="313.0"
-                    style="-fx-background-color: transparent; -fx-text-fill: #424242;" text="Menu 1"/>
-            <Button alignment="BASELINE_LEFT" prefHeight="26.0" prefWidth="234.0"
-                    style="-fx-background-color: transparent; -fx-text-fill: #424242;" text="Menu 2"/>
-            <!-- ... Tambahkan item menu lainnya sesuai kebutuhan ... -->
+            <!-- Tombol-tombol dari database akan dimasukkan di sini -->
         </VBox>
     </left>
 
@@ -74,10 +69,8 @@
     <center>
         <StackPane fx:id="centerSection">
             <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true">
-                <content>
-                    <TextArea fx:id="chatArea" editable="false"
-                              style="-fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;" wrapText="true"/>
-                </content>
+                <TextArea fx:id="chatArea" editable="false"
+                          style="-fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;" wrapText="true"/>
             </ScrollPane>
         </StackPane>
     </center>

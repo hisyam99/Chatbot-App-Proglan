@@ -6,6 +6,7 @@ import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.HttpURLConnection;
+import java.util.List;
 
 public class ChatbotController {
 
@@ -55,7 +57,32 @@ public class ChatbotController {
         navigationDrawer.setVisible(false);
         configureUserInput();
         toggleTheme();
+
+        List<String> menuItems = dummyMenu.getMenuItems();
+        menuItems.add(0, "New Chat +");
+
+        for (String menuItem : menuItems) {
+            Button button = new Button(menuItem);
+            button.setStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
+            button.setOnAction(event -> handleMenuItemClick(menuItem));
+            if (menuItem.equals("New Chat +")) {
+                navigationDrawer.getChildren().add(0, button);
+            } else {
+                navigationDrawer.getChildren().add(button);
+            }
+        }
     }
+
+    private void handleMenuItemClick(String menuItem) {
+        if (menuItem.equals("New Chat +")) {
+            // Membersihkan teks pada TextArea
+            chatArea.clear();
+        } else {
+            // Logika untuk menangani klik pada tombol menu lainnya
+            System.out.println("Clicked on: " + menuItem);
+        }
+    }
+
 
     private void configureUserInput() {
         userInput.setOnKeyPressed(event -> {
@@ -152,6 +179,11 @@ public class ChatbotController {
         scrollPane.setStyle("-fx-background-color: #455a64; -fx-background: none; -fx-border-style: none;");
         navigationDrawer.setStyle("-fx-background-color: #607d8b;");
         mainBorderPane.setStyle("-fx-background-color: #607d8b;");
+        for (Node node : navigationDrawer.getChildren()) {
+            if (node instanceof Button button) {
+                button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;");
+            }
+        }
     }
 
     private void setLightMode() {
@@ -166,6 +198,11 @@ public class ChatbotController {
         scrollPane.setStyle("-fx-background-color: #f5f5f5; -fx-background: none; -fx-border-style: none;");
         navigationDrawer.setStyle("-fx-background-color: #eeeeee;");
         mainBorderPane.setStyle("-fx-background-color: #eeeeee;");
+        for (Node node : navigationDrawer.getChildren()) {
+            if (node instanceof Button button) {
+                button.setStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
+            }
+        }
     }
 
     public void showAboutInfo() {
