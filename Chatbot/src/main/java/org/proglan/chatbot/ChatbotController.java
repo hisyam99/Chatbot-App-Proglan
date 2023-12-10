@@ -1,8 +1,5 @@
 package org.proglan.chatbot;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -32,7 +29,7 @@ public class ChatbotController {
     public ImageView menuIcon;
     public ImageView aboutIcon;
     public ScrollPane scrollPane;
-    public BorderPane mainBorderPane;
+    public StackPane mainStackPane;
 
     @FXML
     private TextArea chatArea;
@@ -53,8 +50,6 @@ public class ChatbotController {
 
     public void initialize() {
         chatbotService = new ChatbotService();
-        toggleDrawer();
-        navigationDrawer.setVisible(false);
         configureUserInput();
         toggleTheme();
 
@@ -75,10 +70,8 @@ public class ChatbotController {
 
     private void handleMenuItemClick(String menuItem) {
         if (menuItem.equals("New Chat +")) {
-            // Membersihkan teks pada TextArea
             chatArea.clear();
         } else {
-            // Logika untuk menangani klik pada tombol menu lainnya
             System.out.println("Clicked on: " + menuItem);
         }
     }
@@ -178,7 +171,7 @@ public class ChatbotController {
         bottomSection.setStyle("-fx-background-color: #263238;");
         scrollPane.setStyle("-fx-background-color: #455a64; -fx-background: none; -fx-border-style: none;");
         navigationDrawer.setStyle("-fx-background-color: #607d8b;");
-        mainBorderPane.setStyle("-fx-background-color: #607d8b;");
+        mainStackPane.setStyle("-fx-background-color: #607d8b;");
         for (Node node : navigationDrawer.getChildren()) {
             if (node instanceof Button button) {
                 button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;");
@@ -197,7 +190,7 @@ public class ChatbotController {
         bottomSection.setStyle("-fx-background-color: #FFFFFF;");
         scrollPane.setStyle("-fx-background-color: #f5f5f5; -fx-background: none; -fx-border-style: none;");
         navigationDrawer.setStyle("-fx-background-color: #eeeeee;");
-        mainBorderPane.setStyle("-fx-background-color: #eeeeee;");
+        mainStackPane.setStyle("-fx-background-color: #eeeeee;");
         for (Node node : navigationDrawer.getChildren()) {
             if (node instanceof Button button) {
                 button.setStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
@@ -216,23 +209,14 @@ public class ChatbotController {
     }
 
     public void toggleDrawer() {
-        navigationDrawer.setVisible(true);
-        Timeline timeline = new Timeline();
         TranslateTransition transition = new TranslateTransition(Duration.millis(350), navigationDrawer);
 
         if (isDrawerOpen) {
-            KeyValue widthValue = new KeyValue(navigationDrawer.prefWidthProperty(), 0);
-            KeyFrame keyFrame = new KeyFrame(Duration.millis(350), widthValue);
-            timeline.getKeyFrames().add(keyFrame);
             transition.setToX(-navigationDrawer.getWidth());
         } else {
-            KeyValue widthValue = new KeyValue(navigationDrawer.prefWidthProperty(), 200);
-            KeyFrame keyFrame = new KeyFrame(Duration.millis(350), widthValue);
-            timeline.getKeyFrames().add(keyFrame);
             transition.setToX(0);
         }
 
-        timeline.play();
         transition.play();
         isDrawerOpen = !isDrawerOpen;
     }
