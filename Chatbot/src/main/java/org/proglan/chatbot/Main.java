@@ -30,6 +30,10 @@ public class Main extends Application {
             Scene scene = new Scene(root, 400, 600);
             primaryStage.setTitle("ChatBot");
             primaryStage.setScene(scene);
+
+            primaryStage.setMinWidth(300);
+            primaryStage.setMinHeight(400);
+
             primaryStage.show();
 
             PauseTransition delay = getPauseTransition(splashRoot, root);
