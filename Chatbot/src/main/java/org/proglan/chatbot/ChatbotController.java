@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.HttpURLConnection;
-import java.util.List;
 
 public class ChatbotController {
 
@@ -30,6 +29,8 @@ public class ChatbotController {
     public ImageView aboutIcon;
     public ScrollPane scrollPane;
     public StackPane mainStackPane;
+    public Button newChat;
+    public ImageView newChatIcon;
 
     @FXML
     private TextArea chatArea;
@@ -52,30 +53,7 @@ public class ChatbotController {
         chatbotService = new ChatbotService();
         configureUserInput();
         toggleTheme();
-
-        List<String> menuItems = dummyMenu.getMenuItems();
-        menuItems.add(0, "New Chat +");
-
-        for (String menuItem : menuItems) {
-            Button button = new Button(menuItem);
-            button.setStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
-            button.setOnAction(event -> handleMenuItemClick(menuItem));
-            if (menuItem.equals("New Chat +")) {
-                navigationDrawer.getChildren().add(0, button);
-            } else {
-                navigationDrawer.getChildren().add(button);
-            }
-        }
     }
-
-    private void handleMenuItemClick(String menuItem) {
-        if (menuItem.equals("New Chat +")) {
-            chatArea.clear();
-        } else {
-            System.out.println("Clicked on: " + menuItem);
-        }
-    }
-
 
     private void configureUserInput() {
         userInput.setOnKeyPressed(event -> {
@@ -164,6 +142,8 @@ public class ChatbotController {
         themeIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_theme_icon.png")));
         menuIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_menu_icon.png")));
         aboutIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_about_icon.png")));
+        newChat.setStyle("-fx-background-color: transparent; -fx-control-inner-background:#455a64; -fx-text-fill: white;");
+        newChatIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/dark_newChat_icon.png")));
         chatArea.setStyle("-fx-control-inner-background:#455a64; -fx-text-fill: white;");
         userInput.setStyle("-fx-background-color: #546e7a; -fx-text-fill: white;");
         topSection.setStyle("-fx-background-color: #263238; -fx-text-fill: white;");
@@ -183,6 +163,8 @@ public class ChatbotController {
         themeIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/theme_icon.png")));
         menuIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/menu_icon.png")));
         aboutIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/about_icon.png")));
+        newChat.setStyle("-fx-background-color: transparent; -fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;");
+        newChatIcon.setImage(new Image(getClass().getResourceAsStream("images/icons/newChat_icon.png")));
         chatArea.setStyle("-fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;");
         userInput.setStyle("-fx-background-color: #eeeeee; -fx-text-fill: #212121;");
         topSection.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: black;");
@@ -206,6 +188,11 @@ public class ChatbotController {
         aboutAlert.setHeaderText(null);
         aboutAlert.setContentText(aboutInfo);
         aboutAlert.showAndWait();
+    }
+
+    public void newChat() {
+        chatArea.clear();
+        toggleDrawer();
     }
 
     public void toggleDrawer() {
