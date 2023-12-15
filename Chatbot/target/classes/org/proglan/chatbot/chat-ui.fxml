@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<StackPane fx:id="mainStackPane" prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #eeeeee;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.proglan.chatbot.ChatbotController">
+<?import javafx.scene.text.Font?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:id="mainStackPane" prefHeight="600.0" prefWidth="400.0"
+           style="-fx-background-color: #eeeeee;" xmlns="http://javafx.com/javafx/17.0.2-ea"
+           fx:controller="org.proglan.chatbot.ChatbotController">
 
     <!-- Top Section -->
     <BorderPane fx:id="topSection" style="-fx-background-color: #ffffff;">
         <bottom>
 
             <!-- Bottom Section: User Input and Buttons -->
-            <VBox fx:id="bottomSection" alignment="CENTER" maxHeight="56.0" minHeight="56.0" spacing="10" style="-fx-background-color: #ffffff;" BorderPane.alignment="CENTER">
+            <VBox fx:id="bottomSection" alignment="CENTER" maxHeight="56.0" minHeight="56.0" spacing="10"
+                  style="-fx-background-color: #ffffff;" BorderPane.alignment="CENTER">
                 <HBox alignment="CENTER" spacing="10">
-                    <TextField fx:id="userInput" promptText="Type a message..." style="-fx-background-color: #eeeeee; -fx-text-fill: #212121;" HBox.hgrow="ALWAYS" />
-                    <Button fx:id="sendButton" onAction="#sendMessage" style="-fx-background-color: #1976d2; -fx-text-fill: white;" text="Send" />
-                    <ProgressIndicator fx:id="cancelProgressIndicator" managed="false" maxHeight="20" maxWidth="20" visible="false" />
-                    <ProgressIndicator fx:id="progressIndicator" managed="false" maxHeight="20" maxWidth="20" visible="false" />
+                    <TextField fx:id="userInput" promptText="Type a message..."
+                               style="-fx-background-color: #eeeeee; -fx-text-fill: #212121;" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="sendButton" onAction="#sendMessage"
+                            style="-fx-background-color: #1976d2; -fx-text-fill: white;" text="Send"/>
+                    <ProgressIndicator fx:id="cancelProgressIndicator" managed="false" maxHeight="20" maxWidth="20"
+                                       visible="false"/>
+                    <ProgressIndicator fx:id="progressIndicator" managed="false" maxHeight="20" maxWidth="20"
+                                       visible="false"/>
                     <padding>
-                        <Insets left="20.0" right="20.0" />
+                        <Insets left="20.0" right="20.0"/>
                     </padding>
                 </HBox>
             </VBox>
@@ -31,31 +37,37 @@
                     <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10px;">
                         <Button onAction="#toggleDrawer" style="-fx-background-color: transparent;">
                             <graphic>
-                                <ImageView fx:id="menuIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@images/icons/menu_icon.png" />
+                                <ImageView fx:id="menuIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true"
+                                           preserveRatio="true">
+                                    <Image url="@images/icons/menu_icon.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
-                        <Label fx:id="textLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #212121;" text="ChatBot">
+                        <Label fx:id="textLabel"
+                               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #212121;"
+                               text="ChatBot">
                             <font>
-                                <Font size="24.0" />
+                                <Font size="24.0"/>
                             </font>
                         </Label>
                     </HBox>
                 </left>
                 <right>
                     <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10px;">
-                        <ToggleButton fx:id="themeSwitch" onAction="#toggleTheme" style="-fx-background-color: transparent;">
+                        <ToggleButton fx:id="themeSwitch" onAction="#toggleTheme"
+                                      style="-fx-background-color: transparent;">
                             <graphic>
-                                <ImageView fx:id="themeIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@images/icons/theme_icon.png" />
+                                <ImageView fx:id="themeIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true"
+                                           preserveRatio="true">
+                                    <Image url="@images/icons/theme_icon.png"/>
                                 </ImageView>
                             </graphic>
                         </ToggleButton>
                         <Button onAction="#showAboutInfo" style="-fx-background-color: transparent;">
                             <graphic>
-                                <ImageView fx:id="aboutIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@images/icons/about_icon.png" />
+                                <ImageView fx:id="aboutIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true"
+                                           preserveRatio="true">
+                                    <Image url="@images/icons/about_icon.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
@@ -70,21 +82,32 @@
             <!-- Center Section: Chat Area -->
             <StackPane fx:id="centerSection" BorderPane.alignment="CENTER">
                 <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true">
-                    <TextArea fx:id="chatArea" editable="false" style="-fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;" wrapText="true" />
+                    <TextArea fx:id="chatArea" editable="false"
+                              style="-fx-control-inner-background: #f5f5f5; -fx-text-fill: #212121;" wrapText="true"/>
                 </ScrollPane>
 
                 <!-- Left Section: Navigation Drawer -->
-                <VBox id="navigationDrawer" fx:id="navigationDrawer" maxWidth="200.0" style="-fx-background-color: #eeeeee;" StackPane.alignment="CENTER_LEFT">
+                <VBox id="navigationDrawer" fx:id="navigationDrawer" maxWidth="200.0"
+                      style="-fx-background-color: #eeeeee;" StackPane.alignment="CENTER_LEFT">
                     <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10px;">
-                        <Button fx:id="newChat" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#newChat" style="-fx-background-color: transparent; -fx-border-width: 0;" text="New Chat" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="newChat" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#newChat"
+                                style="-fx-background-color: transparent; -fx-border-width: 0;" text="New Chat"
+                                HBox.hgrow="ALWAYS"/>
                         <Button onAction="#newChat" style="-fx-background-color: transparent;">
                             <graphic>
-                                <ImageView fx:id="newChatIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@images/icons/newChat_icon.png" />
+                                <ImageView fx:id="newChatIcon" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true"
+                                           preserveRatio="true">
+                                    <Image url="@images/icons/newChat_icon.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
                     </HBox>
+
+                    <!-- Area untuk menampilkan daftar pertanyaan dari riwayat chat -->
+                    <VBox id="chatHistoryList" spacing="5" style="-fx-padding: 10px;">
+                        <!-- List pertanyaan dari riwayat chat akan ditambahkan di sini -->
+                    </VBox>
                 </VBox>
             </StackPane>
         </center>

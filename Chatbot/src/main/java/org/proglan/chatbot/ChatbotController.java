@@ -13,12 +13,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatbotController {
 
     private static final String SEND_BUTTON_SEND = "Send";
     private static final String SEND_BUTTON_CANCEL = "Cancel";
+    private final String fileName = "chat_history.txt";
     public BorderPane topSection;
     public StackPane centerSection;
     public ProgressIndicator cancelProgressIndicator;
@@ -31,7 +35,6 @@ public class ChatbotController {
     public StackPane mainStackPane;
     public Button newChat;
     public ImageView newChatIcon;
-
     @FXML
     private TextArea chatArea;
     @FXML
@@ -44,15 +47,17 @@ public class ChatbotController {
     private ToggleButton themeSwitch;
     @FXML
     private VBox navigationDrawer;
-
     private ChatbotService chatbotService;
     private HttpURLConnection connection;
     private boolean isDrawerOpen = true;
+    private boolean isFirstChatAfterNewChat = true;
+    private List<String> firstQuestionList = new ArrayList<>();
 
     public void initialize() {
         chatbotService = new ChatbotService();
         configureUserInput();
         toggleTheme();
+        loadChatHistory();
     }
 
     private void configureUserInput() {
@@ -62,6 +67,50 @@ public class ChatbotController {
                 event.consume();
             }
         });
+    }
+
+    private void saveToTxtFile(String message) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            writer.write(message + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle any errors if necessary
+        }
+    }
+
+
+    private void loadChatHistory() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            StringBuilder chatHistory = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                chatHistory.append(line).append("\n");
+
+                if (line.startsWith("You")) {
+                    String userMessage = line.substring(line.indexOf(":") + 2);
+                    if (isFirstChatAfterNewChat) {
+                        firstQuestionList.add(userMessage);
+                    }
+                }
+            }
+
+            chatArea.setText(chatHistory.toString());
+            if (isFirstChatAfterNewChat) {
+                updateNavigationDrawer();
+                isFirstChatAfterNewChat = false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveFirstQuestion(String question) {
+        if (isFirstChatAfterNewChat) {
+            firstQuestionList.add(question);
+            updateNavigationDrawer();
+            isFirstChatAfterNewChat = false;
+        }
     }
 
     public void sendMessage() {
@@ -74,6 +123,8 @@ public class ChatbotController {
             task.setOnSucceeded(event -> handleTaskCompletion(userMessage, task.getValue()));
 
             new Thread(task).start();
+            saveToTxtFile("You: " + userMessage);
+            saveFirstQuestion(userMessage); // Menyimpan pertanyaan unik ke list pertanyaan pertama
             userInput.clear();
         }
     }
@@ -104,6 +155,8 @@ public class ChatbotController {
         appendToChat("Chatbot", response);
         toggleProgressIndicator(false);
         toggleUserInput(false);
+        saveToTxtFile("You: " + userMessage);
+        saveToTxtFile("Chatbot: " + response);
     }
 
     private void appendToChat(String sender, String message) {
@@ -130,6 +183,56 @@ public class ChatbotController {
         }
     }
 
+    private void updateNavigationDrawer() {
+        VBox chatHistoryList = (VBox) navigationDrawer.lookup("#chatHistoryList");
+        chatHistoryList.getChildren().clear();
+
+        for (String question : firstQuestionList) {
+            Button questionButton = createQuestionButton(question);
+            chatHistoryList.getChildren().add(questionButton);
+        }
+    }
+
+
+    private Button createQuestionButton(String question) {
+        Button questionButton = new Button(question);
+        questionButton.setOnAction(e -> loadChatHistoryForQuestion(question));
+        questionButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
+        return questionButton;
+    }
+
+    private void applyHistoryButtonsStyle(String style) {
+        VBox chatHistoryList = (VBox) navigationDrawer.lookup("#chatHistoryList");
+        for (Node node : chatHistoryList.getChildren()) {
+            if (node instanceof Button) {
+                Button historyButton = (Button) node;
+                historyButton.setStyle(style);
+            }
+        }
+    }
+
+    private void loadChatHistoryForQuestion(String selectedQuestion) {
+        StringBuilder chatHistory = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            boolean startAppending = false;
+
+            while ((line = reader.readLine()) != null) {
+                if (line.contains(selectedQuestion)) {
+                    startAppending = true;
+                }
+                if (startAppending) {
+                    chatHistory.append(line).append("\n");
+                }
+            }
+
+            chatArea.setText(chatHistory.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void toggleTheme() {
         if (themeSwitch.isSelected()) {
             setDarkMode();
@@ -152,6 +255,7 @@ public class ChatbotController {
         scrollPane.setStyle("-fx-background-color: #455a64; -fx-background: none; -fx-border-style: none;");
         navigationDrawer.setStyle("-fx-background-color: #607d8b;");
         mainStackPane.setStyle("-fx-background-color: #607d8b;");
+        applyHistoryButtonsStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;");
         for (Node node : navigationDrawer.getChildren()) {
             if (node instanceof Button button) {
                 button.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;");
@@ -173,6 +277,7 @@ public class ChatbotController {
         scrollPane.setStyle("-fx-background-color: #f5f5f5; -fx-background: none; -fx-border-style: none;");
         navigationDrawer.setStyle("-fx-background-color: #eeeeee;");
         mainStackPane.setStyle("-fx-background-color: #eeeeee;");
+        applyHistoryButtonsStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
         for (Node node : navigationDrawer.getChildren()) {
             if (node instanceof Button button) {
                 button.setStyle("-fx-background-color: transparent; -fx-text-fill: #424242; -fx-font-size: 16px;");
@@ -193,6 +298,7 @@ public class ChatbotController {
     public void newChat() {
         chatArea.clear();
         toggleDrawer();
+        isFirstChatAfterNewChat = true;
     }
 
     public void toggleDrawer() {
